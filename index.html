@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FamPick - 家庭点单小程序</title>
+  <!-- Tailwind CSS v3 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FF6B35',
+            'primary-dark': '#E55525',
+            'primary-light': '#FF9A76',
+            secondary: '#FFD166',
+            accent: '#06D6A0',
+            background: '#FFF9F5',
+            surface: '#FFFFFF',
+            text: '#2A2A2A',
+            'text-light': '#6B6B6B',
+            success: '#06D6A0',
+            warning: '#FFD166',
+            error: '#EF476F'
+          }
+        }
+      }
+    }
+  </script>
+  <!-- 自定义样式 -->
+  <link href="css/styles.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-orange-50 via-white to-amber-50 min-h-screen font-sans text-gray-800">
+  <!-- Toast 通知 -->
+  <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-2xl shadow-xl z-50 hidden font-medium">
+    <span class="toast-message text-white"></span>
+  </div>
+
+  <!-- 页面容器 -->
+  <div id="app" class="max-w-md mx-auto min-h-screen pb-24 bg-white/80 backdrop-blur-xl">
+    
+    <!-- ========================================
+         登录页面
+         ======================================== -->
+    <div id="login-page" class="min-h-screen flex flex-col">
+      <!-- 顶部装饰 -->
+      <div class="h-72 bg-gradient-to-br from-orange-400 via-orange-500 to-amber-500 relative overflow-hidden">
+        <!-- 装饰圆形 -->
+        <div class="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full"></div>
+        <div class="absolute bottom-10 right-10 w-24 h-24 bg-white/10 rounded-full"></div>
+        <div class="absolute top-20 right-20 w-16 h-16 bg-white/5 rounded-full"></div>
+        
+        <!-- Logo -->
+        <div class="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-6">
+          <div class="w-24 h-24 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-6 shadow-2xl border border-white/30">
+            <i class="fa fa-cutlery text-4xl"></i>
+          </div>
+          <h1 class="text-4xl font-bold mb-2 tracking-tight">FamPick</h1>
+          <p class="text-orange-100 text-lg">家庭美食，点单更简单</p>
+        </div>
+      </div>
+
+      <!-- 登录表单 -->
+      <div class="flex-1 px-6 -mt-8 relative z-20">
+        <div class="bg-white rounded-3xl shadow-xl p-8">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">欢迎回来</h2>
+          
+          <div class="space-y-5">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">用户名</label>
+              <div class="relative">
+                <i class="fa fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="username" placeholder="请输入用户名" 
+                  class="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100 outline-none transition-all text-base">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">密码</label>
+              <div class="relative">
+                <i class="fa fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <input type="password" id="password" placeholder="请输入密码" 
+                  class="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100 outline-none transition-all text-base">
+              </div>
+            </div>
+
+            <button id="login-btn" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0">
+              登录
+            </button>
+
+            <div class="relative flex items-center justify-center my-6">
+              <div class="w-full h-px bg-gray-200"></div>
+              <span class="absolute bg-white px-4 text-sm text-gray-400">或</span>
+            </div>
+
+            <button id="quick-login-btn" class="w-full bg-gradient-to-r from-amber-400 to-orange-500 text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0">
+              <i class="fa fa-bolt mr-2"></i>快速登录
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================
+         主页面
+         ======================================== -->
+    <div id="main-page" class="hidden">
+      
+      <!-- ========================================           今日点单页面           ======================================== -->
+      <div id="today-order-page" class="page-section">
+        <!-- 头部 + 统计卡片 -->
+        <div class="bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 px-5 pt-12 pb-8 relative">
+          <!-- 装饰 -->
+          <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
+          <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+          
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-6">
+              <div class="text-white">
+                <h2 class="text-3xl font-bold">今日菜单</h2>
+                <p id="current-date" class="text-orange-100 mt-1"></p>
+              </div>
+            </div>
+            
+            <!-- 今日菜单统计 -->
+            <div class="bg-white/10 backdrop-blur-md rounded-3xl p-5 text-white shadow-lg border border-white/20">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-orange-100 text-sm font-medium mb-1">已选菜品</p>
+                  <p class="text-4xl font-bold"><span id="order-count">0</span> 道菜</p>
+                </div>
+                <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                  <i class="fa fa-cutlery text-3xl"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="px-5 py-6 pb-24">
+          <!-- 已选菜品 -->
+          <div class="mb-5">
+            <h3 class="font-bold text-gray-800 text-lg mb-4">已选菜品</h3>
+            <div id="today-menu-list" class="space-y-3">
+              <!-- 由 JS 动态渲染 -->
+            </div>
+          </div>
+
+          <!-- 智能推荐卡片 -->
+          <div class="bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 rounded-3xl p-5 mb-5 shadow-lg border border-amber-100/50">
+            <div class="flex items-center mb-4">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mr-4 shadow-lg">
+                <i class="fa fa-magic text-white text-xl"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-gray-800 text-lg">智能推荐</h3>
+                <p class="text-gray-500 text-sm">根据你的口味推荐</p>
+              </div>
+            </div>
+            
+            <div id="recommend-preview" class="space-y-2 mb-4">
+              <!-- 由 JS 动态渲染 -->
+            </div>
+            
+            <button id="generate-recommend-btn" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 rounded-2xl font-semibold shadow-md hover:shadow-lg transition-all duration-300">
+              <i class="fa fa-refresh mr-2"></i>换一批推荐
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================
+           菜单浏览页面
+           ======================================== -->
+      <div id="menu-page" class="page-section hidden">
+        <!-- 头部 -->
+        <div class="px-5 pt-12 pb-6 bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600">
+          <h2 class="text-3xl font-bold text-white mb-1">菜单浏览</h2>
+          <p class="text-orange-100">发现美味佳肴</p>
+          
+          <!-- 搜索框 -->
+          <div class="relative mt-4">
+            <i class="fa fa-search absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input type="text" placeholder="搜索菜品..." class="w-full pl-14 pr-5 py-4 bg-white/20 backdrop-blur-md border border-white/20 rounded-2xl text-white placeholder-orange-200 focus:bg-white focus:text-gray-800 outline-none transition-all">
+          </div>
+        </div>
+
+        <!-- 分类标签 -->
+        <div id="category-buttons" class="flex overflow-x-auto px-5 py-4 space-x-3 bg-white sticky top-0 z-10 scrollbar-hide">
+          <!-- 由 JS 动态渲染 -->
+        </div>
+
+        <!-- 菜品网格 -->
+        <div id="dish-list" class="px-5 pb-24 space-y-3">
+          <!-- 由 JS 动态渲染 -->
+          <!-- 示例菜品卡片结构 -->
+          <!-- 
+          <div class="dish-card">
+            <img src="" alt="" class="dish-card-image">
+            <div class="dish-card-body">
+              <div>
+                <h4 class="dish-name">菜品名称</h4>
+                <p class="dish-description">菜品描述</p>
+              </div>
+              <div class="dish-meta">
+                <div class="dish-tags">
+                  <span class="badge badge-primary">分类</span>
+                </div>
+                <span class="cooking-time">
+                  <i class="fa fa-clock-o"></i>
+                  30分钟
+                </span>
+              </div>
+            </div>
+            <div class="dish-card-actions">
+              <button class="like-btn">
+                <i class="fa fa-heart text-gray-300"></i>
+              </button>
+              <button class="add-to-menu-btn">
+                <i class="fa fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          -->
+        </div>
+      </div>
+
+      <!-- ========================================
+           图像识别页面
+           ======================================== -->
+      <div id="recognize-page" class="page-section hidden">
+        <div class="px-5 pt-12 pb-6 bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600">
+          <h2 class="text-3xl font-bold text-white mb-1">图像识别</h2>
+          <p class="text-orange-100">拍照识别美味</p>
+        </div>
+
+        <div class="px-5 -mt-4 pb-24">
+          <div class="bg-white rounded-3xl p-8 shadow-xl text-center border border-gray-100">
+            <div class="w-40 h-40 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
+              <i class="fa fa-camera text-7xl text-orange-500"></i>
+            </div>
+            <p class="text-gray-600 text-lg mb-2">上传菜品图片</p>
+            <p class="text-gray-400 mb-6">AI 智能识别菜品信息</p>
+            <input type="file" accept="image/*" class="hidden" id="recognize-upload">
+            <button onclick="document.getElementById('recognize-upload').click()" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-10 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+              <i class="fa fa-upload mr-2"></i>上传图片
+            </button>
+          </div>
+
+          <!-- 加载动画 -->
+          <div id="recognize-loading" class="hidden mt-6 bg-white rounded-3xl p-8 shadow-xl text-center">
+            <div class="loading-spinner mx-auto mb-4 w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full"></div>
+            <p class="text-gray-600 text-lg">识别中...</p>
+          </div>
+
+          <!-- 识别结果 -->
+          <div id="recognize-result" class="hidden mt-6">
+            <!-- 由 JS 动态渲染 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================
+           用户页面
+           ======================================== -->
+      <div id="user-page" class="page-section hidden">
+        <!-- 头部 -->
+        <div class="bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 px-5 pt-12 pb-16 relative overflow-hidden">
+          <!-- 装饰 -->
+          <div class="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full"></div>
+          <div class="absolute bottom-10 left-10 w-24 h-24 bg-white/10 rounded-full"></div>
+          
+          <h2 class="text-3xl font-bold text-white mb-6 relative z-10">我的</h2>
+          
+          <!-- 用户信息卡片 -->
+          <div id="user-info" class="bg-white/20 backdrop-blur-md rounded-3xl p-6 border border-white/30 shadow-xl relative z-10">
+            <!-- 由 JS 动态渲染 -->
+          </div>
+        </div>
+
+        <div class="px-5 py-6 pb-24">
+          <!-- 统计数据 -->
+          <div class="grid grid-cols-3 gap-4 mb-6" id="user-stats">
+            <!-- 由 JS 动态渲染 -->
+          </div>
+
+          <!-- 功能区域 -->
+          <div class="space-y-5">
+            <!-- 我的收藏 -->
+            <div class="bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100">
+              <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="font-bold text-gray-800 flex items-center">
+                  <div class="w-8 h-8 rounded-xl bg-rose-100 flex items-center justify-center mr-3">
+                    <i class="fa fa-heart text-rose-500"></i>
+                  </div>
+                  我的收藏
+                </h3>
+              </div>
+              <div id="user-favorites" class="p-5">
+                <!-- 由 JS 动态渲染 -->
+              </div>
+            </div>
+
+            <!-- 订单历史 -->
+            <div class="bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100">
+              <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="font-bold text-gray-800 flex items-center">
+                  <div class="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center mr-3">
+                    <i class="fa fa-history text-blue-500"></i>
+                  </div>
+                  订单历史
+                </h3>
+              </div>
+              <div id="user-orders" class="p-5">
+                <!-- 由 JS 动态渲染 -->
+              </div>
+            </div>
+
+            <!-- 其他功能 -->
+            <div class="bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100">
+              <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="font-bold text-gray-800 flex items-center">
+                  <div class="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center mr-3">
+                    <i class="fa fa-cog text-purple-500"></i>
+                  </div>
+                  更多功能
+                </h3>
+              </div>
+              <div class="p-5 space-y-4">
+                <button class="w-full flex items-center justify-between py-3 px-2 hover:bg-gray-50 rounded-xl transition-colors">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center mr-3">
+                      <i class="fa fa-bell text-amber-500"></i>
+                    </div>
+                    <span class="text-gray-700 font-medium">通知设置</span>
+                  </div>
+                  <i class="fa fa-chevron-right text-gray-400"></i>
+                </button>
+                <button class="w-full flex items-center justify-between py-3 px-2 hover:bg-gray-50 rounded-xl transition-colors">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-xl bg-teal-100 flex items-center justify-center mr-3">
+                      <i class="fa fa-shield text-teal-500"></i>
+                    </div>
+                    <span class="text-gray-700 font-medium">隐私设置</span>
+                  </div>
+                  <i class="fa fa-chevron-right text-gray-400"></i>
+                </button>
+                <button class="w-full flex items-center justify-between py-3 px-2 hover:bg-gray-50 rounded-xl transition-colors">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center mr-3">
+                      <i class="fa fa-info-circle text-indigo-500"></i>
+                    </div>
+                    <span class="text-gray-700 font-medium">关于我们</span>
+                  </div>
+                  <i class="fa fa-chevron-right text-gray-400"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- 退出登录 -->
+            <button id="logout-btn" class="w-full bg-white rounded-3xl shadow-md border border-gray-200 py-4 text-red-500 font-semibold hover:bg-red-50 transition-colors flex items-center justify-center">
+              <div class="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center mr-3">
+                <i class="fa fa-sign-out text-red-500"></i>
+              </div>
+              退出登录
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================
+           菜品详情页面
+           ======================================== -->
+      <div id="dish-detail-page" class="page-section hidden">
+        <!-- 返回栏 -->
+        <div class="sticky top-0 z-30 bg-white/90 backdrop-blur-md px-5 py-4 flex items-center justify-between border-b border-gray-100 shadow-sm">
+          <div class="flex items-center">
+            <button id="back-to-menu" class="w-11 h-11 rounded-2xl bg-gray-100 flex items-center justify-center mr-3 hover:bg-gray-200 transition-colors">
+              <i class="fa fa-arrow-left text-gray-600"></i>
+            </button>
+            <h2 class="font-bold text-gray-800 text-lg">菜品详情</h2>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="like-dish-btn" class="w-11 h-11 rounded-2xl bg-gray-100 flex items-center justify-center transition-colors">
+              <i class="fa fa-heart text-gray-300 text-lg"></i>
+            </button>
+            <button id="edit-dish-btn" class="w-11 h-11 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-600 hover:bg-orange-200 transition-colors">
+              <i class="fa fa-edit"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="pb-28">
+          <!-- 菜品图片 -->
+          <img id="dish-detail-image" src="" alt="" class="w-full h-72 object-cover">
+          
+          <!-- 菜品信息 -->
+          <div class="px-5 py-6">
+            <h3 id="dish-detail-name" class="text-2xl font-bold text-gray-800 mb-3"></h3>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span id="dish-detail-category" class="badge badge-primary"></span>
+              <span id="dish-detail-time" class="text-sm text-gray-500 flex items-center">
+                <i class="fa fa-clock-o mr-1"></i>
+              </span>
+              <span id="dish-detail-difficulty" class="badge badge-secondary"></span>
+            </div>
+            
+            <p id="dish-detail-description" class="text-gray-600 leading-relaxed mb-4"></p>
+            
+            <!-- 标签 -->
+            <div id="dish-detail-tags" class="flex flex-wrap gap-2 mb-4"></div>
+
+            <!-- 主厨 -->
+            <div class="flex items-center p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl mb-6">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center mr-4">
+                <i class="fa fa-user text-white"></i>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">主厨</p>
+                <p id="dish-detail-chef" class="font-bold text-gray-800"></p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 食材清单 -->
+          <div class="mx-5 bg-white rounded-3xl shadow-lg p-5 mb-4 border border-gray-100">
+            <h4 class="font-bold text-gray-800 flex items-center mb-4">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center mr-3">
+                <i class="fa fa-shopping-basket text-white"></i>
+              </div>
+              食材清单
+            </h4>
+            <ul id="dish-detail-ingredients" class="space-y-3"></ul>
+          </div>
+          
+          <!-- 制作步骤 -->
+          <div class="mx-5 bg-white rounded-3xl shadow-lg p-5 mb-4 border border-gray-100">
+            <h4 class="font-bold text-gray-800 flex items-center mb-4">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mr-3">
+                <i class="fa fa-list-ol text-white"></i>
+              </div>
+              制作步骤
+            </h4>
+            <div id="dish-detail-steps" class="space-y-4"></div>
+          </div>
+
+          <!-- 用户评价区域 -->
+          <div class="mx-5 bg-white rounded-3xl shadow-lg p-5 mb-4 border border-gray-100">
+            <h4 class="font-bold text-gray-800 flex items-center mb-4">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center mr-3">
+                <i class="fa fa-comments text-white"></i>
+              </div>
+              用户评价
+            </h4>
+            
+            <!-- 添加评价表单 -->
+            <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-4 mb-4">
+              <div class="mb-3">
+                <label class="text-sm text-gray-600 mb-2 block">评分</label>
+                <select id="review-rating" class="w-full border-0 bg-white rounded-xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-orange-100 outline-none">
+                  <option value="5">★★★★★ 5分</option>
+                  <option value="4">★★★★☆ 4分</option>
+                  <option value="3">★★★☆☆ 3分</option>
+                  <option value="2">★★☆☆☆ 2分</option>
+                  <option value="1">★☆☆☆☆ 1分</option>
+                </select>
+              </div>
+              <textarea id="review-content" class="w-full border-0 rounded-xl p-4 text-sm bg-white shadow-sm focus:ring-2 focus:ring-orange-100 outline-none" rows="3" placeholder="分享你的用餐体验..."></textarea>
+              <button id="submit-review" class="mt-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:shadow-lg transition-all">
+                发表评论
+              </button>
+            </div>
+            
+            <!-- 评价列表 -->
+            <div id="dish-reviews" class="space-y-3">
+              <!-- 由 JS 动态渲染 -->
+            </div>
+          </div>
+        </div>
+        
+        <!-- 底部操作栏 -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-100 p-5 max-w-md mx-auto shadow-[0_-4px_20px_rgba(0,0,0,0.08)] z-30">
+          <button id="add-to-menu-from-detail" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300">
+            <i class="fa fa-plus mr-2"></i>加入点单
+          </button>
+        </div>
+      </div>
+
+
+
+      <!-- ========================================
+           添加菜品弹窗
+           ======================================== -->
+      <div id="add-dish-modal" class="fixed inset-0 bg-black/50 z-50 hidden">
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[2rem] p-6 animate-slide-up max-w-md mx-auto">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-800">添加菜品</h3>
+            <button id="close-add-dish" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+          
+          <div class="space-y-4">
+            <div id="select-from-menu" class="flex items-center p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl cursor-pointer hover:shadow-md transition-all border border-orange-100">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center mr-4">
+                <i class="fa fa-list text-white text-xl"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="font-bold text-gray-800">从菜单中选择</h4>
+                <p class="text-sm text-gray-500 mt-1">从已有的菜品中选择</p>
+              </div>
+              <i class="fa fa-chevron-right text-gray-400"></i>
+            </div>
+            
+            <div id="upload-new-dish" class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl cursor-pointer hover:shadow-md transition-all border border-blue-100">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mr-4">
+                <i class="fa fa-plus-circle text-white text-xl"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="font-bold text-gray-800">上传新菜品</h4>
+                <p class="text-sm text-gray-500 mt-1">添加新的菜品到菜单</p>
+              </div>
+              <i class="fa fa-chevron-right text-gray-400"></i>
+            </div>
+            
+            <div id="image-recognize" class="flex items-center p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl cursor-pointer hover:shadow-md transition-all border border-purple-100">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center mr-4">
+                <i class="fa fa-camera text-white text-xl"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="font-bold text-gray-800">图像识别</h4>
+                <p class="text-sm text-gray-500 mt-1">拍照识别菜品信息</p>
+              </div>
+              <i class="fa fa-chevron-right text-gray-400"></i>
+            </div>
+          </div>
+          
+          <!-- 上传表单 -->
+          <form id="upload-form" class="hidden mt-6 space-y-4">
+            <div>
+              <label for="dish-name" class="block text-sm font-semibold text-gray-700 mb-2">菜品名称</label>
+              <input type="text" id="dish-name" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 outline-none" placeholder="请输入菜品名称">
+            </div>
+
+            <div>
+              <label for="dish-category" class="block text-sm font-semibold text-gray-700 mb-2">菜品分类</label>
+              <select id="dish-category" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 outline-none">
+                <option value="">请选择分类</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="dish-time" class="block text-sm font-semibold text-gray-700 mb-2">烹饪时间（分钟）</label>
+              <input type="number" id="dish-time" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 outline-none" placeholder="请输入烹饪时间">
+            </div>
+
+            <div>
+              <label for="dish-difficulty" class="block text-sm font-semibold text-gray-700 mb-2">难度等级</label>
+              <select id="dish-difficulty" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 outline-none">
+                <option value="">请选择难度</option>
+                <option value="简单">简单</option>
+                <option value="中等">中等</option>
+                <option value="困难">困难</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="dish-chef" class="block text-sm font-semibold text-gray-700 mb-2">主厨</label>
+              <select id="dish-chef" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 outline-none">
+                <option value="">请选择主厨</option>
+                <option value="爸爸">爸爸</option>
+                <option value="妈妈">妈妈</option>
+                <option value="爷爷">爷爷</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="dish-note" class="block text-sm font-semibold text-gray-700 mb-2">备注</label>
+              <input type="text" id="dish-note" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 outline-none" placeholder="如：少放辣、多加糖等">
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all">
+              上传
+            </button>
+          </form>
+          
+          <button id="cancel-upload" class="hidden w-full mt-4 border-2 border-gray-200 text-gray-600 py-4 rounded-2xl font-semibold hover:bg-gray-50 transition-all">
+            取消
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================================
+           编辑菜品弹窗
+           ======================================== -->
+      <div id="edit-dish-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end justify-center p-4">
+        <div class="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-[2rem]">
+          <div class="sticky top-0 bg-white p-6 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="text-xl font-bold text-gray-800">编辑菜品信息</h3>
+            <button id="close-edit-dish" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+          
+          <form id="edit-dish-form" class="p-6 space-y-5">
+            <input type="hidden" id="edit-dish-name">
+            
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">菜品图片URL</label>
+              <input type="text" id="edit-dish-image" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 outline-none" placeholder="请输入图片链接">
+              <p class="text-xs text-gray-500 mt-2">支持网络图片链接</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">菜品描述</label>
+              <textarea id="edit-dish-description" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 outline-none" rows="4" placeholder="请输入菜品描述"></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all">
+              保存修改
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ========================================
+           编辑资料弹窗
+           ======================================== -->
+      <div id="edit-profile-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-t-[2rem]">
+          <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="text-xl font-bold text-gray-800">编辑资料</h3>
+            <button id="close-edit-profile" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+          
+          <form id="edit-profile-form" class="p-6 space-y-5">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">用户名</label>
+              <input type="text" id="edit-profile-name" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 outline-none" placeholder="请输入用户名">
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all">
+              保存
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+    <!-- ========================================
+         底部导航栏
+         ======================================== -->
+    <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 bg-white/98 backdrop-blur-md shadow-[0_-1px_3px_rgba(0,0,0,0.05)] z-40 hidden">
+      <div class="max-w-md mx-auto flex justify-around items-start pt-2 pb-1">
+        <button class="nav-btn flex flex-col items-center py-1 px-3 min-w-[64px] text-orange-500 relative" data-index="0">
+          <i class="fa fa-home text-[22px] mb-0.5"></i>
+          <span class="text-[10px] font-medium leading-none">首页</span>
+          <div class="nav-indicator absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-orange-500 opacity-0 transition-opacity"></div>
+        </button>
+        <button class="nav-btn flex flex-col items-center py-1 px-3 min-w-[64px] text-gray-400 relative" data-index="1">
+          <i class="fa fa-book text-[22px] mb-0.5"></i>
+          <span class="text-[10px] font-medium leading-none">菜单</span>
+          <div class="nav-indicator absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-orange-500 opacity-0 transition-opacity"></div>
+        </button>
+        <button class="nav-btn flex flex-col items-center py-1 px-3 min-w-[64px] text-gray-400 relative" data-index="2">
+          <i class="fa fa-camera text-[22px] mb-0.5"></i>
+          <span class="text-[10px] font-medium leading-none">识别</span>
+          <div class="nav-indicator absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-orange-500 opacity-0 transition-opacity"></div>
+        </button>
+        <button id="user-avatar-btn" class="nav-btn flex flex-col items-center py-1 px-3 min-w-[64px] text-gray-400 relative">
+          <i class="fa fa-user text-[22px] mb-0.5"></i>
+          <span class="text-[10px] font-medium leading-none">我的</span>
+          <div class="nav-indicator absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-orange-500 opacity-0 transition-opacity"></div>
+        </button>
+      </div>
+    </nav>
+
+    <!-- ========================================
+         添加菜品FAB按钮
+         ======================================== -->
+    <div id="fab-add-container" class="fixed bottom-24 right-5 z-35 hidden">
+      <button id="add-dish-btn" class="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center hover:scale-110">
+        <i class="fa fa-plus text-xl"></i>
+      </button>
+    </div>
+
+  <!-- FamPick 模块化 JavaScript -->
+  <script src="js/dish-data.js"></script>
+  <script src="js/dish-ui.js"></script>
+  <script src="js/dish-app.js"></script>
+</body>
+</html>

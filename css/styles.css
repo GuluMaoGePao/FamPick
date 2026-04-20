@@ -1,0 +1,833 @@
+/* ============================================
+   FamPick 温馨家庭主题样式 v4
+   采用温暖橙黄配色，活泼灵动有食欲
+   ============================================ */
+
+/* Tailwind 基础配置 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==================== 主题配色 ==================== */
+:root {
+  --primary: #FF6B35;
+  --primary-dark: #E55525;
+  --primary-light: #FF9A76;
+  --secondary: #FFD166;
+  --accent: #06D6A0;
+  --background: #FFF9F5;
+  --surface: #FFFFFF;
+  --text: #2A2A2A;
+  --text-light: #6B6B6B;
+  --success: #06D6A0;
+  --warning: #FFD166;
+  --error: #EF476F;
+}
+
+/* ==================== 自定义工具类 ==================== */
+@layer utilities {
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+
+  .truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ==================== 组件样式 ==================== */
+@layer components {
+  /* 按钮样式 */
+  .btn-primary {
+    @apply text-white px-6 py-3 rounded-2xl font-semibold shadow-lg;
+    background: linear-gradient(135deg, #FF6B35 0%, #E55525 100%);
+    transition: all 0.3s ease;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(255, 107, 53, 0.3);
+  }
+
+  .btn-secondary {
+    @apply bg-white text-orange-600 px-6 py-3 rounded-2xl font-semibold border-2 border-orange-200;
+    transition: all 0.3s ease;
+  }
+  .btn-secondary:hover {
+    @apply bg-orange-50 border-orange-300;
+  }
+
+  .btn-icon {
+    @apply w-12 h-12 rounded-full flex items-center justify-center shadow-lg;
+    background: linear-gradient(135deg, #FF6B35 0%, #E55525 100%);
+    transition: all 0.3s ease;
+  }
+  .btn-icon:hover {
+    transform: scale(1.1);
+  }
+
+  /* 输入框样式 */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white;
+    transition: all 0.3s ease;
+  }
+  .input-field:focus {
+    @apply border-orange-400 outline-none;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+  }
+
+  /* 徽章样式 */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+  .badge-primary {
+    @apply bg-orange-100 text-orange-700;
+  }
+  .badge-secondary {
+    @apply bg-amber-100 text-amber-700;
+  }
+  .badge-accent {
+    @apply bg-rose-100 text-rose-700;
+  }
+
+  /* 卡片样式 */
+  .card {
+    @apply bg-white rounded-3xl shadow-sm overflow-hidden;
+  }
+  .card-body {
+    @apply p-5;
+  }
+
+  /* 头像样式 */
+  .avatar {
+    @apply rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600;
+  }
+
+  /* 导航按钮 */
+  .nav-btn {
+    @apply flex flex-col items-center transition-all duration-300;
+    min-height: 48px;
+  }
+  .nav-btn.active {
+    @apply text-emerald-500;
+  }
+  .nav-btn:hover {
+    @apply text-emerald-500;
+  }
+  .nav-btn:active {
+    @apply scale-95;
+  }
+  .nav-btn .nav-indicator {
+    opacity: 0;
+  }
+  .nav-btn.active .nav-indicator {
+    opacity: 1;
+  }
+
+  /* 隐藏滚动条 */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* ==================== 页面样式 ==================== */
+html {
+  height: 100%;
+}
+
+body {
+  background: linear-gradient(180deg, #F0FDF4 0%, #ECFDF5 100%);
+  min-height: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+/* 页面容器 */
+.page-container {
+  @apply max-w-md mx-auto bg-white min-h-screen relative;
+}
+
+/* 页面过渡动画 */
+.page-section {
+  animation: pageIn 0.4s ease-out;
+}
+
+@keyframes pageIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== 卡片样式 ==================== */
+/* ==================== 菜品卡片 - 列表布局 ==================== */
+#dish-list {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dish-card {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dish-card:active {
+  transform: scale(0.98);
+}
+
+.dish-card .flex {
+  display: flex;
+  align-items: center;
+}
+
+.dish-card .dish-card-image {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+
+.dish-card .dish-card-body {
+  flex: 1;
+  margin-left: 1rem;
+}
+
+.dish-card .dish-name {
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 1rem;
+}
+
+.dish-card .dish-info {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.dish-card .dish-info span {
+  display: flex;
+  align-items: center;
+}
+
+.dish-card .dish-info .separator {
+  color: #d1d5db;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.dish-card .dish-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dish-card .like-count {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.dish-card .like-count-text {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.dish-card .like-count .action-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background-color: transparent;
+}
+
+.dish-card .action-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.dish-card .like-btn {
+  color: #d1d5db;
+}
+
+.dish-card .like-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.dish-card .like-btn.liked {
+  color: #f87171;
+}
+
+.dish-card .add-btn {
+  background-color: #FF6B35;
+  color: white;
+}
+
+.dish-card .add-btn:hover {
+  background-color: #E55525;
+}
+
+.dish-card .add-btn.added {
+  background-color: #FF6B35;
+  color: white;
+}
+
+/* 数量控制按钮 */
+.dish-card .quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dish-card .quantity-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FF6B35;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.dish-card .quantity-btn:hover {
+  background-color: #E55525;
+}
+
+.dish-card .quantity-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dish-card .quantity-value {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1f2937;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+/* 推荐预览数量控制按钮 */
+#recommend-preview .quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#recommend-preview .quantity-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FF6B35;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+#recommend-preview .quantity-btn:hover {
+  background-color: #E55525;
+}
+
+#recommend-preview .quantity-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* 推荐预览数量控制按钮 */
+#recommend-preview .quantity-value {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1f2937;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+/* ==================== 今日菜单统计卡片 ==================== */
+#today-order-page .bg-white\/10 {
+  padding: 1.75rem;
+  border-radius: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(255, 107, 53, 0.3);
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+#today-order-page .bg-white\/10:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -8px rgba(255, 107, 53, 0.4);
+}
+
+#today-order-page .bg-white\/10 .text-4xl {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-top: 0.25rem;
+  background: linear-gradient(135deg, #ffffff 0%, #ffd6b3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#today-order-page .bg-white\/10 .w-16 {
+  width: 4.5rem;
+  height: 4.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+#today-order-page .bg-white\/10 .fa-cutlery {
+  font-size: 2.25rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ==================== 搜索框图标 ==================== */
+#menu-page .fa-search {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+  z-index: 10;
+}
+
+#menu-page .relative {
+  position: relative;
+}
+
+#menu-page input {
+  position: relative;
+  z-index: 1;
+}
+
+/* ==================== 按钮样式 ==================== */
+.fab-button {
+  @apply w-14 h-14 rounded-full flex items-center justify-center text-white text-xl;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  box-shadow: 0 8px 20px -5px rgba(16, 185, 129, 0.4);
+  transition: all 0.3s ease;
+}
+.fab-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 25px -5px rgba(16, 185, 129, 0.5);
+}
+.fab-button:active {
+  transform: scale(0.95);
+}
+
+/* ==================== 模态框样式 ==================== */
+.modal-backdrop {
+  @apply fixed inset-0 z-40;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  @apply fixed left-0 right-0 bottom-0 z-50 bg-white rounded-t-3xl p-6;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* 弹窗动画 */
+.modal-enter {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ==================== Toast 提示 ==================== */
+.toast {
+  @apply fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-2xl shadow-xl z-50 text-white font-medium;
+  animation: toastIn 0.3s ease-out;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+}
+
+@keyframes toastIn {
+  0% {
+    transform: translate(-50%, -20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+}
+
+/* ==================== 加载动画 ==================== */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 脉冲动画 */
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ==================== 空状态 ==================== */
+.empty-state {
+  @apply flex flex-col items-center justify-center py-12 text-center;
+}
+
+.empty-state-icon {
+  @apply w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mb-4;
+}
+
+.empty-state-icon i {
+  @apply text-4xl text-emerald-400;
+}
+
+/* ==================== 统计卡片 ==================== */
+.stat-card {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  min-height: 80px;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #10B981;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #6B7280;
+  margin-top: 0.25rem;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ==================== 头像卡片 ==================== */
+.profile-avatar {
+  @apply w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  box-shadow: 0 8px 15px -3px rgba(16, 185, 129, 0.3);
+}
+
+/* ==================== 评价星级 ==================== */
+.star {
+  @apply text-lg;
+}
+
+.star-filled {
+  color: #FBBF24;
+}
+
+.star-empty {
+  @apply text-gray-300;
+}
+
+/* ==================== 标签样式 ==================== */
+.tag {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+  @apply text-emerald-700;
+}
+
+/* ==================== 分类标签 ==================== */
+#category-buttons {
+  @apply flex overflow-x-auto px-5 py-4 space-x-3 bg-white sticky top-0 z-10 scrollbar-hide;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.category-btn {
+  @apply px-5 py-2 rounded-full font-medium transition-all duration-300 flex-shrink-0;
+  min-width: 80px;
+  text-align: center;
+}
+
+.category-btn.active {
+  @apply text-white;
+  background: linear-gradient(135deg, #FF6B35 0%, #E55525 100%);
+  box-shadow: 0 4px 10px -2px rgba(255, 107, 53, 0.3);
+  transform: translateY(-1px);
+}
+
+.category-btn:not(.active) {
+  @apply bg-gray-100 text-gray-600;
+}
+
+.category-btn:not(.active):hover {
+  @apply bg-orange-100 text-orange-600;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.2);
+}
+
+/* ==================== 底部导航 ==================== */
+.bottom-nav {
+  @apply fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-30;
+  backdrop-filter: blur(10px);
+}
+
+.bottom-nav-inner {
+  @apply max-w-md mx-auto flex justify-around py-3;
+}
+
+.bottom-nav-item {
+  @apply flex flex-col items-center text-gray-400 transition-all duration-300;
+}
+
+.bottom-nav-item.active {
+  @apply text-emerald-500;
+}
+
+.bottom-nav-item i {
+  @apply text-2xl mb-1 transition-transform duration-300;
+}
+
+.bottom-nav-item.active i {
+  transform: scale(1.1);
+}
+
+/* ==================== 列表样式 ==================== */
+.list-item {
+  @apply flex items-center p-4 bg-white rounded-2xl mb-3;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.list-item:hover {
+  @apply bg-emerald-50;
+}
+
+.list-item-image {
+  @apply w-14 h-14 rounded-xl object-cover;
+}
+
+/* ==================== 响应式调整 ==================== */
+@media (max-width: 640px) {
+  .btn-primary,
+  .btn-secondary {
+    @apply px-5 py-2.5 text-sm;
+  }
+
+  .modal-content {
+    @apply p-4;
+  }
+
+  #bottom-nav {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .nav-btn {
+    min-width: 56px;
+  }
+
+  .nav-btn i {
+    font-size: 20px !important;
+  }
+
+  .nav-btn span {
+    font-size: 9px !important;
+  }
+}
+
+/* ==================== 打印样式 ==================== */
+@media print {
+  .no-print,
+  .bottom-nav,
+  .fab-button {
+    display: none !important;
+  }
+}
+
+/* ==================== 渐变背景 ==================== */
+.bg-gradient-hero {
+  background: linear-gradient(135deg, #10B981 0%, #059669 50%, #0D9488 100%);
+}
+
+.bg-gradient-warm {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #FCD34D 100%);
+}
+
+/* ==================== 玻璃态效果 ==================== */
+.glass {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+/* ==================== 阴影效果 ==================== */
+.shadow-card {
+  box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.08), 0 2px 6px -2px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-float {
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+}
+
+/* ==================== 动画效果 ==================== */
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ==================== 滚动条美化 ==================== */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* ==================== 安全区域支持 ==================== */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ==================== 底部导航栏优化 ==================== */
+#bottom-nav {
+  background: rgba(255, 255, 255, 0.99);
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+#bottom-nav::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(0, 0, 0, 0.12) 20%, 
+    rgba(0, 0, 0, 0.12) 80%, 
+    transparent
+  );
+}
+
+.nav-btn {
+  position: relative;
+}
+
+.nav-btn.active {
+  color: #10B981 !important;
+  font-weight: 600;
+}
+
+.nav-btn.active i {
+  color: #10B981 !important;
+  transform: scale(1.1);
+}
+
+.nav-btn:not(.active) {
+  color: #6B7280 !important;
+}
+
+.nav-btn:not(.active) i {
+  color: #9CA3AF !important;
+}
