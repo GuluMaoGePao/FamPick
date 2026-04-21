@@ -78,8 +78,8 @@
     transition: all 0.3s ease;
   }
   .input-field:focus {
-    @apply border-orange-400 outline-none;
-    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+    @apply border-gray-200 outline-none;
+    box-shadow: none;
   }
 
   /* 徽章样式 */
@@ -597,17 +597,46 @@ body {
 
 /* ==================== 分类标签 ==================== */
 #category-buttons {
-  @apply flex overflow-x-auto px-5 py-4 space-x-3 bg-white sticky top-0 z-10 scrollbar-hide;
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  position: sticky;
+  top: 0;
+  z-index: 10;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(8px);
-  background: rgba(255, 255, 255, 0.95);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+  user-select: none;
+}
+
+#category-buttons:active {
+  cursor: grabbing;
+}
+
+#category-buttons::-webkit-scrollbar {
+  display: none;
 }
 
 .category-btn {
-  @apply px-5 py-2 rounded-full font-medium transition-all duration-300 flex-shrink-0;
+  padding: 8px 20px;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
   min-width: 80px;
   text-align: center;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  margin-right: 12px;
 }
 
 .category-btn.active {
@@ -625,6 +654,30 @@ body {
   @apply bg-orange-100 text-orange-600;
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(255, 107, 53, 0.2);
+}
+
+/* 子分类按钮样式 */
+.subcategory-btn {
+  @apply px-4 py-1.5 rounded-full font-medium transition-all duration-300 flex-shrink-0 text-sm;
+  min-width: 60px;
+  text-align: center;
+}
+
+.subcategory-btn.active {
+  @apply text-white;
+  background: linear-gradient(135deg, #06D6A0 0%, #05B08A 100%);
+  box-shadow: 0 4px 10px -2px rgba(6, 214, 160, 0.3);
+  transform: translateY(-1px);
+}
+
+.subcategory-btn:not(.active) {
+  @apply bg-gray-100 text-gray-600;
+}
+
+.subcategory-btn:not(.active):hover {
+  @apply bg-emerald-100 text-emerald-600;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(6, 214, 160, 0.2);
 }
 
 /* ==================== 底部导航 ==================== */

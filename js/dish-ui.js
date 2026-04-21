@@ -33,6 +33,33 @@ const DishUI = {
     const container = document.getElementById('category-buttons');
     if (!container) return;
 
+    // 添加鼠标拖动滚动功能
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    container.addEventListener('mousedown', (e) => {
+      isDown = true;
+      startX = e.pageX - container.offsetLeft;
+      scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener('mouseleave', () => {
+      isDown = false;
+    });
+
+    container.addEventListener('mouseup', () => {
+      isDown = false;
+    });
+
+    container.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - container.offsetLeft;
+      const walk = (x - startX) * 2; // 滚动速度
+      container.scrollLeft = scrollLeft - walk;
+    });
+
     container.innerHTML = '';
     const categories = DishData.categories;
 
@@ -53,22 +80,107 @@ const DishUI = {
 
         // 更新状态
         DishApp.state.selectedCategory = category;
+        DishApp.state.selectedSubcategory = null;
 
         // 渲染对应分类的菜品
         this.renderDishList(category);
+
+        // 渲染子分类按钮
+        this.renderSubcategoryButtons(category);
       });
 
       container.appendChild(button);
     });
   },
 
+  // 渲染子分类按钮
+  renderSubcategoryButtons(category) {
+    const container = document.getElementById('subcategory-buttons');
+    // 如果容器不存在，创建它
+    if (!container) {
+      const parent = document.getElementById('category-buttons');
+      if (parent) {
+        const subContainer = document.createElement('div');
+        subContainer.id = 'subcategory-buttons';
+        subContainer.className = 'flex overflow-x-auto px-5 py-2 space-x-3 bg-white sticky top-16 z-10 scrollbar-hide';
+        parent.insertAdjacentElement('afterend', subContainer);
+      }
+    }
+
+    const subContainer = document.getElementById('subcategory-buttons');
+    if (!subContainer) return;
+
+    // 获取子分类
+    const subcategories = DishData.subcategories[category];
+
+    if (subcategories && subcategories.length > 0) {
+      subContainer.innerHTML = '';
+      subContainer.classList.remove('hidden');
+
+      // 添加全部子分类按钮
+      const allButton = document.createElement('button');
+      allButton.className = 'subcategory-btn active flex-shrink-0';
+      allButton.textContent = '全部';
+      allButton.setAttribute('data-subcategory', '全部');
+
+      allButton.addEventListener('click', () => {
+        // 更新活跃状态
+        subContainer.querySelectorAll('.subcategory-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        allButton.classList.add('active');
+
+        // 更新状态
+        DishApp.state.selectedSubcategory = null;
+
+        // 渲染对应分类的菜品
+        this.renderDishList(DishApp.state.selectedCategory);
+      });
+
+      subContainer.appendChild(allButton);
+
+      // 添加子分类按钮
+      subcategories.forEach(subcategory => {
+        const button = document.createElement('button');
+        button.className = 'subcategory-btn flex-shrink-0';
+        button.textContent = subcategory;
+        button.setAttribute('data-subcategory', subcategory);
+
+        button.addEventListener('click', () => {
+          // 更新活跃状态
+          subContainer.querySelectorAll('.subcategory-btn').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          button.classList.add('active');
+
+          // 更新状态
+          DishApp.state.selectedSubcategory = subcategory;
+
+          // 渲染对应子分类的菜品
+          this.renderDishList(DishApp.state.selectedCategory, subcategory);
+        });
+
+        subContainer.appendChild(button);
+      });
+    } else {
+      // 如果没有子分类，隐藏子分类容器
+      subContainer.innerHTML = '';
+      subContainer.classList.add('hidden');
+    }
+  },
+
   // 渲染菜品列表
-  renderDishList(category = '全部') {
+  renderDishList(category = '全部', subcategory = null) {
     const container = document.getElementById('dish-list');
     if (!container) return;
 
     container.innerHTML = '';
-    const dishes = DishData.getDishesByCategory(category);
+    let dishes = DishData.getDishesByCategory(category);
+
+    // 子分类过滤
+    if (subcategory && subcategory !== '全部') {
+      dishes = dishes.filter(dish => dish.subcategory === subcategory);
+    }
 
     if (dishes.length === 0) {
       container.innerHTML = '<p class="text-center text-gray-500 py-12 col-span-2">暂无菜品</p>';
